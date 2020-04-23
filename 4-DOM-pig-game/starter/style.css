@@ -126,6 +126,14 @@ button:focus {
     outline: none;
 }
 
+button:disabled {
+    color: #bbbbbb;
+}
+
+button:disabled i {
+    color: #bbbbbb;
+}
+
 i {
     color: #EB4D4D;
     display: inline-block;
