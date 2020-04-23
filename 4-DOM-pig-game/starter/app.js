@@ -9,32 +9,62 @@ GAME RULES:
 
 */
 
-let scores, roundScore, activePlayer, gamePlaying;
+let scores, roundScore, activePlayer, gamePlaying, previousRoll, winningScoreEl, winningScore;
+
+// Select score setter
+winningScoreEl = document.getElementById('winning-score');
 
 // Initialize/reset game
 resetGame();
 
+// Roll
 document.querySelector('.btn-roll').addEventListener('click', function() {
     if (gamePlaying) {
-        // Get number
-        let dice = Math.floor(Math.random() * 6) + 1;
+        // Debug, log previousRoll
+        console.log(previousRoll);
+
+        // Get numbers & sum
+        let dice1 = Math.floor(Math.random() * 6) + 1;
+        let dice2 = Math.floor(Math.random() * 6) + 1;
+        let diceSum = dice1 + dice2;
 
         // Display result
-        let diceDOM = document.querySelector('.dice');
-        diceDOM.style.display = 'block';
-        diceDOM.src = 'dice-' + dice + '.png';
+        let diceDiv = document.querySelector('.dice');
+        let firstDiceDOM = document.querySelector('.dice1');
+        let secondDiceDOM = document.querySelector('.dice2');
+        diceDiv.style.display = 'block';
+        firstDiceDOM.style.display = 'block';
+        firstDiceDOM.src = 'dice-' + dice1 + '.png';
+        secondDiceDOM.style.display = 'block';
+        secondDiceDOM.src = 'dice-' + dice2 + '.png';
 
-        // Update the round score IF the rolled number was not a 1
-        if (dice !== 1) {
-            roundScore += dice;
+        // Check for double sixes
+        if (previousRoll === 6 && diceSum === 6) {
+            // Lose entire score and next player's turn
+            console.log('Two sixes in a row! for player ' + activePlayer);
+            roundScore = 0;
+            scores[activePlayer] = 0;
             document.querySelector('#current-' + activePlayer).textContent = roundScore;
-        } else {
-            // Next player
+            document.getElementById('score-' + activePlayer).textContent = scores[activePlayer];
             changeActivePlayer();
+        } else {
+            // Log roll as previous
+            previousRoll = diceSum;
+
+            // Update the round score IF the rolled number was not a 1 and not a second 6 in a row
+            if (dice1 !== 1 && dice2 !== 1) {
+                roundScore += diceSum;
+                document.querySelector('#current-' + activePlayer).textContent = roundScore;
+            } else {
+                // Next player
+                console.log(`Player ${activePlayer} rolled a 1`);
+                changeActivePlayer();
+            }
         }
     }
 });
 
+// Hold
 document.querySelector('.btn-hold').addEventListener('click', function() {
     if (gamePlaying) {
         // Add current score to total score
@@ -71,6 +101,21 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
 
 document.querySelector('.btn-new').addEventListener('click', resetGame);
 
+// Watch for Winning Score change and reset the game
+winningScoreEl.addEventListener('change', function() {
+    if (winningScoreEl.value > 0) {
+        if (winningScoreEl.value % 1 == 0) { 
+            resetGame();
+        } else {
+            console.log('Winning Score must be a whole number');
+            winningScoreEl.value = 100;
+        }
+    } else {
+        console.log('Winning Score must be a positive number');
+        winningScoreEl.value = 100;
+    }
+});
+
 function changeActivePlayer() {
            // Next player
            activePlayer === 0 ? activePlayer = 1 : activePlayer = 0;
@@ -91,6 +136,10 @@ function resetGame() {
     roundScore = 0;
     activePlayer = 0;
     gamePlaying = true;
+    previousRoll = 0;
+
+    // set winning score
+    winningScore = parseInt(winningScoreEl.value, 10);
 
     document.getElementById('score-0').textContent = '0';
     document.getElementById('score-1').textContent = '0';
