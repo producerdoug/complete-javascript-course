@@ -1,2 +1,2 @@
- const proxy = 'PROXYSERVER';
- const key = 'APIKEY';
+ export const proxy = 'PROXYSERVER';
+ export const key = 'APIKEY';
